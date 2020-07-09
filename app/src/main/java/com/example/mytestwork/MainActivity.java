@@ -5,7 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,7 +20,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public TextView text_json;
+    public ImageView imageView ;
 
     class QueryTask extends AsyncTask<URL, Void, String>{
 
@@ -130,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
             String avatr_url = null;
             String specialty_id = null;
             String name = null;
+            String outputBirth = null;
 
 
             try {
@@ -139,19 +146,36 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONArray jsonArraySpecialty = employee.getJSONArray("specialty");
                 JSONObject specialty = jsonArraySpecialty.getJSONObject(0);
-                f_name = employee.getString("f_name");
-                l_name = employee.getString("l_name");
+                f_name = convert(employee.getString("f_name"));
+                l_name = convert(employee.getString("l_name"));
                 birthday = employee.getString("birthday");
                 avatr_url = employee.getString("avatr_url");
                 specialty_id = specialty.getString("specialty_id");
                 name = specialty.getString("name");
+
+                if (birthday.equals(""))
+                {
+                    outputBirth = "-";
+                }
+                else {
+                    DateFormat inputFormat = new SimpleDateFormat("yyyy-mm-dd");
+                    DateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy");
+                    Date date = inputFormat.parse(birthday);
+                    outputBirth = outputFormat.format(date);
+                }
+
                 int k = 1;
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
                 e.printStackTrace();
             }
 
 
-            String result = "Имя: " + f_name + "\n" + "Фамилия: " + l_name + "\n" + "День рождения: " + birthday + "\n" + "Должность: " + name;
+            imageView = findViewById(R.id.image);
+            Picasso.get().load(avatr_url).into(imageView);
+
+            String result = "Имя: " + f_name + "\n" + "Фамилия: " + l_name + "\n" + "День рождения: " + outputBirth + "\n" + "Должность: " + name;
             text_json.setText(result);
 
         }
@@ -164,6 +188,11 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getActivity(), "Данные загружены", Toast.LENGTH_SHORT)
                     .show();
         }*/
+
+     private String convert(String in) {
+         String upper_case_line = in.substring(0, 1).toUpperCase() + in.substring(1).toLowerCase();
+         return upper_case_line;
+     }
 
         private String getContent(String path) throws IOException {
             BufferedReader reader = null;
