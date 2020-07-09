@@ -7,6 +7,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +18,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -116,7 +123,37 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String content) {
-            text_json.setText(content);
+            //text_json.setText(content);
+            String f_name = null;
+            String l_name = null;
+            String birthday = null;
+            String avatr_url = null;
+            String specialty_id = null;
+            String name = null;
+
+
+            try {
+                JSONObject jsonObject = new JSONObject(content);
+                JSONArray jsonArray = jsonObject.getJSONArray("response");
+                JSONObject employee = jsonArray.getJSONObject(0);
+
+                JSONArray jsonArraySpecialty = employee.getJSONArray("specialty");
+                JSONObject specialty = jsonArraySpecialty.getJSONObject(0);
+                f_name = employee.getString("f_name");
+                l_name = employee.getString("l_name");
+                birthday = employee.getString("birthday");
+                avatr_url = employee.getString("avatr_url");
+                specialty_id = specialty.getString("specialty_id");
+                name = specialty.getString("name");
+                int k = 1;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            String result = "Имя: " + f_name + "\n" + "Фамилия: " + l_name + "\n" + "День рождения: " + birthday + "\n" + "Должность: " + name;
+            text_json.setText(result);
+
         }
      /*   @Override
         protected void onPostExecute(String content) {
